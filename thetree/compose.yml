@@ -1,0 +1,105 @@
+name: thetree
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U TheTree -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: rustfs
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - rustfs_data:/data
+      - rustfs_logs:/logs
+    networks:
+      - internal
+      - caddy-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/health && wget -qO- http://localhost:9001/rustfs/console/health"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  identityx:
+    container_name: identityx
+    restart: unless-stopped
+    image: git.trieoh.com/trieoh/identityx:v0.35.3
+    depends_on:
+      - postgres
+    networks:
+      - internal
+      - caddy-net
+      - obs-net
+    env_file:
+      - .env
+      - .identityx.env
+
+  univents:
+    container_name: univents
+    restart: unless-stopped
+    image: git.trieoh.com/trieoh/univents:v0.10.4
+    depends_on:
+      - postgres
+    networks:
+      - internal
+      - caddy-net
+      - obs-net
+    env_file:
+      - .env
+      - .univents.env
+
+  payssage:
+    container_name: payssage
+    restart: unless-stopped
+    image: git.trieoh.com/trieoh/payssage:v0.7.4
+    depends_on:
+      - postgres
+    networks:
+      - internal
+      - caddy-net
+      - obs-net
+    env_file:
+      - .env
+      - .payssage.env
+
+  informd:
+    container_name: informd
+    restart: unless-stopped
+    image: git.trieoh.com/trieoh/informd:latest
+    depends_on:
+      - postgres
+    networks:
+      - internal
+      - caddy-net
+      - obs-net
+    env_file:
+      - .env
+      - .informd.env
+
+networks:
+  internal:
+    internal: true
+  caddy-net:
+    external: true
+  obs-net:
+    external: true
+
+volumes:
+  postgres_data:
+  rustfs_data:
+  rustfs_logs:
+
