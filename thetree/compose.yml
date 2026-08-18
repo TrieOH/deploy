@@ -54,7 +54,7 @@ services:
   univents:
     container_name: univents
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/univents:v0.10.5
+    image: git.trieoh.com/trieoh/univents:v0.10.6
     depends_on:
       postgres:
         condition: service_healthy
