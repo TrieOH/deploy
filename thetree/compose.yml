@@ -17,7 +17,9 @@ services:
       retries: 5
 
   rustfs:
-    image: rustfs/rustfs:latest
+    # Pinned 2026-08-18. NOTE: rustfs has no 1.0 stable; newest release is 1.0.0-rc.2.
+    # (Conservative alt: 1.0.0-beta.12, what :latest currently points to.)
+    image: rustfs/rustfs:1.0.0-rc.2
     container_name: rustfs
     restart: unless-stopped
     env_file:
