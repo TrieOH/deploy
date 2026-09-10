@@ -69,7 +69,7 @@ services:
   payssage:
     container_name: payssage
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/payssage@sha256:77f00255bb00f64942bae37067593b816f0204ddf6ace4964c2c9eecc5ad12e9 # v0.7.10
+    image: git.trieoh.com/trieoh/payssage@sha256:0efc68a7211c4933c8e72b81089344b4ffe9118eead7e8b3da37fbfcbda0d293 # v0.7.10-hotfix.1
     depends_on:
       postgres:
         condition: service_healthy
