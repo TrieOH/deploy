@@ -1,0 +1,57 @@
+name: Rollout
+# The server does almost nothing (§3.8 of TheTree's CI plan): on every commit
+# to main (the deployment ledger), SSH to the server and run the machinery:
+#
+#   pull deployment state → docker compose pull → docker compose up -d --no-deps
+#
+# No service detection: compose runs for ALL services every time — Docker only
+# re-creates containers whose image digest actually changed, so "run them all"
+# is already incremental. The server never builds, tests, or decides.
+#
+# One rollout at a time (release concurrency): commits may enqueue, they run
+# strictly sequentially — never cancelled.
+#
+# Required secrets (set in this repo's settings):
+#   ROLLOUT_SSH_KEY    private key whose public part is authorized on the server
+#   Required vars:
+#   ROLLOUT_SSH_HOST   e.g. prod.example.com (or user@host)
+#   ROLLOUT_SSH_USER   server user owning ~/deploy/thetree
+#
+# The server itself needs a read-only deploy key for origin (git pull) — one
+# time setup, see README.
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: rollout
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  rollout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull deployment state & apply
+        env:
+          SSH_KEY: ${{ secrets.ROLLOUT_SSH_KEY }}
+          SSH_HOST: ${{ vars.ROLLOUT_SSH_HOST }}
+          SSH_USER: ${{ vars.ROLLOUT_SSH_USER }}
+        run: |
+          set -euo pipefail
+          install -m 600 /dev/null /tmp/rollout_key
+          echo "$SSH_KEY" > /tmp/rollout_key
+          trap 'rm -f /tmp/rollout_key' EXIT
+
+          ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes \
+            -i /tmp/rollout_key "$SSH_USER@$SSH_HOST" \
+            'cd ~/deploy/thetree && \
+             git pull --ff-only && \
+             docker compose pull && \
+             docker compose up -d --no-deps && \
+             docker image prune -f'
