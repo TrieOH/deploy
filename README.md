@@ -63,7 +63,7 @@ Frontends roll back in Cloudflare: `wrangler versions deploy --version-id
 
 ## Versions
 
-`compose.yml` pins **digests** — `image: git.trieoh.com/trieoh/<svc>@sha256:…
+`compose.yml` pins **digests** — `image: ghcr.io/trieoh/<svc>@sha256:…
 # vX.Y.Z` (the human tag lives in a comment, never in the image reference).
 **Version changes are made by TheTree's release pipeline, never by hand.**
 Git history is the version ledger. To see what's deployed and when:
@@ -78,7 +78,7 @@ releases; informd is unused in prod.
 
 1. Add the service to `compose.yml` (`image`, `container_name`, `env_file`,
    `networks` — keep the existing patterns). Use the tag form
-   (`git.trieoh.com/trieoh/<svc>:v0.0.1`); the pipeline digest-pins it on the
+   (`ghcr.io/trieoh/<svc>:v0.0.1`); the pipeline digest-pins it on the
    first release.
 2. Create `.<svc>.env.example` from the live server file, values blanked.
 3. Tag a release in TheTree + smoke-test.
@@ -90,3 +90,7 @@ releases; informd is unused in prod.
   crontab (not in git) — when rebuilding the box, re-add them.
 - Infra services (caddy, forgejo, mox, observability, beszel, ntfy) live in
   `TrieOH/infra`, not here.
+- Images are pulled from GHCR (`ghcr.io/trieoh/*`). If the packages are
+  private, the server needs its own `docker login ghcr.io` with a PAT
+  (`read:packages` scope) — the rollout workflow doesn't do this for you,
+  it only runs `docker compose pull` over SSH.

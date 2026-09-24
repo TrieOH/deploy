@@ -39,7 +39,7 @@ services:
   identityx:
     container_name: identityx
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/identityx:v0.35.4
+    image: ghcr.io/trieoh/identityx:v0.35.4
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,7 +54,7 @@ services:
   univents:
     container_name: univents
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/univents:v0.10.17
+    image: ghcr.io/trieoh/univents:v0.10.17
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
   payssage:
     container_name: payssage
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/payssage@sha256:0efc68a7211c4933c8e72b81089344b4ffe9118eead7e8b3da37fbfcbda0d293 # v0.7.10-hotfix.1
+    image: ghcr.io/trieoh/payssage@sha256:0efc68a7211c4933c8e72b81089344b4ffe9118eead7e8b3da37fbfcbda0d293 # v0.7.10-hotfix.1
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,7 +84,7 @@ services:
   informd:
     container_name: informd
     restart: unless-stopped
-    image: git.trieoh.com/trieoh/informd:latest
+    image: ghcr.io/trieoh/informd:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -108,4 +108,3 @@ volumes:
   postgres_data:
   rustfs_data:
   rustfs_logs:
-
